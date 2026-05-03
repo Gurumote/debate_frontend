@@ -1,0 +1,147 @@
+/* ===== LiveKit Component Styles ===== */
+@import '@livekit/components-styles';
+
+/* ===== Tailwind Directives (CRITICAL) ===== */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ===== Design System Tokens ===== */
+:root {
+  /* Surface palette — dark mode only */
+  --surface-base: #0a0f1d;
+  --surface-elevated: #111827;
+  --surface-card: rgba(15, 23, 42, 0.6);
+  --surface-overlay: rgba(15, 23, 42, 0.85);
+
+  /* Text palette */
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-muted: #64748b;
+
+  /* Accent – blue/indigo */
+  --accent: #2563eb;
+  --accent-hover: #3b82f6;
+  --accent-glow: rgba(37, 99, 235, 0.35);
+  --accent-subtle: rgba(37, 99, 235, 0.12);
+
+  /* Semantic colors */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #eab308;
+  --info: #06b6d4;
+
+  /* Border */
+  --border: rgba(30, 41, 59, 0.8);
+  --border-accent: rgba(37, 99, 235, 0.3);
+
+  /* Typography */
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+
+  /* Spacing scale (4px base) */
+  --nav-height: 64px;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+  --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.35);
+  --shadow-glow: 0 0 20px var(--accent-glow);
+
+  /* Transitions */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+
+  /* Z-index scale */
+  --z-base: 0;
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-modal: 40;
+  --z-nav: 100;
+  --z-toast: 1000;
+}
+
+/* ===== Base Reset ===== */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--surface-base);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+
+#root {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ===== Typography ===== */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--text-primary);
+  line-height: 1.2;
+  margin: 0;
+}
+
+p {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ===== Scrollbar ===== */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--surface-base);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--text-muted);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* ===== Focus Ring (Accessibility) ===== */
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ===== Selection ===== */
+::selection {
+  background-color: var(--accent);
+  color: white;
+}
+
+/* ===== Reduced Motion ===== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
