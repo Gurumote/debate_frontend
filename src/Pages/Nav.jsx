@@ -113,6 +113,10 @@ export default function Nav({ isLoggedIn, userStats = { wins: 0, losses: 0 } }) 
                     Profile
                   </Link>
 
+                  <Link to="/activate-room" className="dropdown-item">
+                    Activate Room
+                  </Link>
+
                   <button className="dropdown-item logout-btn" onClick={logout}>
                     Logout
                   </button>

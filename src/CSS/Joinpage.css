@@ -1,0 +1,61 @@
+.join-page {
+  max-width: 400px;
+  margin: 80px auto;
+  font-family: sans-serif;
+}
+
+.input-group {
+  display: flex;
+  gap: 10px;
+}
+
+input {
+  flex: 1;
+  padding: 10px;
+}
+
+button {
+  padding: 10px 15px;
+  cursor: pointer;
+}
+
+.team-select {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+
+.team-select button {
+  width: 48%;
+  border: none;
+  font-weight: bold;
+}
+
+.red {
+  background: #ff4d4d;
+  color: white;
+}
+
+.blue {
+  background: #4d79ff;
+  color: white;
+}
+
+.active {
+  outline: 3px solid black;
+}
+
+.room-info {
+  margin: 15px 0;
+  font-size: 14px;
+}
+
+.note {
+  font-size: 12px;
+  color: gray;
+}
+
+.message {
+  margin-top: 10px;
+  color: red;
+}

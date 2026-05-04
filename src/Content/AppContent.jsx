@@ -3,6 +3,11 @@ import {Navigate, Route, Routes} from "react-router-dom";
 import {Suspense} from "react";
 import AuthPage from "../Pages/Auth.jsx";
 import Nav from "../Pages/Nav.jsx";
+import DashboardPage from "../Pages/DashboardPage.jsx";
+import CreateRoomPage from "../Pages/CreateRoomPage.jsx";
+import HostRoomsPage from "../Pages/HostRoomsPage.jsx";
+import JoinPage from "../Pages/JoinPage.jsx";
+import ActivateRoom from "../Components/ActivateRoom.jsx";
 
 const NavigationWrapper = Nav;
 
@@ -66,14 +71,57 @@ function AppContent() {
 
                         {/* Core Pages (DON’T COMMENT THESE) */}
                         {/* Put at least one real page */}
-                        <Route path="/homepage" element={<div>Home</div>} />
+                        <Route
+                            path="/homepage"
+                            element={
+                                <PrivateRoute>
+                                    <DashboardPage />
+                                </PrivateRoute>
+                            }
+                        />
 
                         {/* Protected */}
                         <Route
-                            path="/rooms"
+                            path="/dashboard"
                             element={
                                 <PrivateRoute>
-                                    <div>Rooms Page</div>
+                                    <DashboardPage />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/create-room"
+                            element={
+                                <PrivateRoute>
+                                    <CreateRoomPage />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/join"
+                            element={
+                                <PrivateRoute>
+                                    <JoinPage />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/activate-room"
+                            element={
+                                <PrivateRoute>
+                                    <ActivateRoom />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
+                            path="/host-rooms"
+                            element={
+                                <PrivateRoute>
+                                    <HostRoomsPage />
                                 </PrivateRoute>
                             }
                         />

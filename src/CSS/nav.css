@@ -1,3 +1,19 @@
+/* ===== THEME VARIABLES (Based on image_0.png) ===== */
+:root {
+  /* Brand Colors from Logo */
+  --color-brand-primary: #3B82F6; /* The vibrant blue dot */
+  --color-brand-dark: #415161;    /* The dark blue-gray text/hexagons */
+  
+  /* Derived Interaction Colors */
+  --color-brand-primary-hover: #2563EB; /* Slightly darker blue */
+  --color-brand-primary-subtle: rgba(59, 130, 246, 0.1);
+  
+  /* The rest of your existing surface/text vars remain the same */
+  /* --surface-base: ... */
+  /* --text-primary: ... */
+  /* --border: ... */
+}
+
 /* ===== Navigation ===== */
 
 .site-nav {
@@ -33,6 +49,7 @@
 .brand {
   display: flex;
   align-items: center;
+  text-decoration: none; /* Ensure link doesn't underline */
 }
 
 .logo-img {
@@ -42,7 +59,7 @@
 }
 
 .brand:hover .logo-img {
-  transform: scale(1.05);
+  transform: scale(1.03); /* Subtle scale */
 }
 
 /* CENTER LINKS */
@@ -68,7 +85,7 @@
   color: var(--text-primary);
 }
 
-/* Active tab underline */
+/* Active tab underline - NOW USES BRAND BLUE */
 .nav-link.active {
   color: var(--text-primary);
   font-weight: 600;
@@ -81,7 +98,7 @@
   left: 0;
   width: 100%;
   height: 2px;
-  background: var(--accent);
+  background: var(--color-brand-primary); /* Brand blue */
   border-radius: 1px;
   animation: slideIn var(--duration-normal) var(--ease-out);
 }
@@ -133,7 +150,7 @@
 .nav-stats {
   font-size: 0.8rem;
   font-weight: 600;
-  background: rgba(30, 41, 59, 0.6);
+  background: rgba(30, 41, 59, 0.6); /* Slightly warmer dark background */
   padding: 6px 14px;
   border-radius: 20px;
   color: var(--text-secondary);
@@ -144,7 +161,7 @@
 }
 
 .stats-icon {
-  color: var(--accent);
+  color: var(--color-brand-primary); /* Brand blue icon */
   width: 14px;
   height: 14px;
   flex-shrink: 0;
@@ -158,22 +175,29 @@
   align-items: center;
 }
 
+/* Profile Circle - Removed generic gradient, uses brand-dark base */
 .profile-circle {
   width: 34px;
   height: 34px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #6366f1);
+  background: var(--color-brand-dark); /* Solid brand dark base */
   border: 2px solid var(--border);
-  transition: box-shadow var(--duration-fast) var(--ease-out),
-              transform var(--duration-fast) var(--ease-out);
+  transition: all var(--duration-fast) var(--ease-out);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: 600;
+  font-size: 0.85rem;
 }
 
 .profile-circle:hover {
-  box-shadow: 0 0 12px var(--accent-glow);
-  transform: scale(1.08);
+  border-color: var(--color-brand-primary); /* Glows brand blue on hover */
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.4);
+  transform: scale(1.05);
 }
 
-/* Auth Buttons */
+/* Auth Buttons Group */
 .auth-group {
   display: flex;
   align-items: center;
@@ -185,32 +209,37 @@
   font-weight: 500;
   color: var(--text-secondary);
   padding: 8px 4px;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
 
 .login-text:hover {
-  color: var(--text-primary);
+  color: var(--color-brand-primary); /* Hover is brand blue */
 }
 
+/* Primary CTA: START DEBATING - Themed to Logo */
 .start-debating {
-  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  background: var(--color-brand-primary); /* Solid brand blue */
   color: white;
-  padding: 8px 20px;
+  padding: 9px 20px; /* Slightly adjusted padding */
   border-radius: 10px;
   font-size: 0.85rem;
   font-weight: 600;
   text-decoration: none;
-  transition: transform var(--duration-fast) var(--ease-out),
-              box-shadow var(--duration-fast) var(--ease-out);
-  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-fast) var(--ease-out);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  border: 1px solid transparent;
 }
 
 .start-debating:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-glow);
+  background: var(--color-brand-primary-hover); /* Darker blue on hover */
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .start-debating:active {
-  transform: translateY(0) scale(0.98);
+  transform: translateY(1px);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 }
 
 /* ===== Mobile hamburger ===== */
@@ -226,7 +255,8 @@
 }
 
 .mobile-toggle:hover {
-  background: rgba(30, 41, 59, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-primary);
 }
 
 /* ===== Responsive ===== */
@@ -263,7 +293,8 @@
 
   .nav-center.open .nav-link:hover,
   .nav-center.open .nav-link.active {
-    background: var(--accent-subtle);
+    background: var(--color-brand-primary-subtle); /* Subtle brand blue bg */
+    color: var(--color-brand-primary);
   }
 
   .nav-center.open .nav-link.active::after {
@@ -282,7 +313,7 @@
     display: none;
   }
 }
-/* ===== PROFILE ===== */
+/* ===== PROFILE & DROPDOWN (Click Controlled) ===== */
 
 .profile-wrapper {
   position: relative;
@@ -294,38 +325,41 @@
   border: none;
   cursor: pointer;
   padding: 0;
+  display: block;
 }
 
-/* Avatar */
+/* Reuse the profile-circle styles if needed, or specific avatar styles */
 .profile-avatar {
+  /* Inherits size and shape from .profile-circle style above */
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), #6366f1);
+  background: var(--color-brand-dark); /* Solid brand dark */
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 600;
   color: white;
   border: 2px solid var(--border);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition: all 0.2s ease;
 }
 
-.profile-avatar:hover {
-  transform: scale(1.08);
-  box-shadow: 0 0 12px var(--accent-glow);
+.profile-btn:hover .profile-avatar {
+  border-color: var(--color-brand-primary);
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
 }
 
-/* ===== DROPDOWN (CLICK CONTROLLED) ===== */
 
 .profile-dropdown {
   position: absolute;
-  top: 52px;
+  top: calc(100% + 12px); /* Positioned relative to the button */
   right: 0;
-  width: 180px;
+  width: 190px;
 
-  background: rgba(15, 23, 42, 0.9);
+  background: rgba(15, 23, 42, 0.95); /* Slightly less transparent */
   backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 
   border: 1px solid var(--border);
   border-radius: 14px;
@@ -337,8 +371,9 @@
   transform: translateY(-10px) scale(0.95);
   pointer-events: none;
 
-  transition: all 0.2s ease;
-  z-index: 200;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: var(--z-dropdown);
+  box-shadow: var(--shadow-lg);
 }
 
 /* OPEN STATE (controlled by React) */
@@ -370,19 +405,29 @@
   color: var(--text-secondary);
   display: block;
   transition: all 0.15s ease;
+  border: 1px solid transparent;
 }
 
-/* Hover effect only for items */
+/* Hover effect - uses brand subtle blue */
 .dropdown-item:hover {
-  background: var(--accent-subtle);
-  color: var(--text-primary);
+  background: var(--color-brand-primary-subtle);
+  color: var(--color-brand-primary);
+}
+
+/* Focus state for accessibility */
+.dropdown-item:focus {
+  outline: none;
+  border-color: var(--color-brand-primary);
+  background: var(--color-brand-primary-subtle);
 }
 
 /* Logout */
 .logout-btn {
   color: var(--danger);
+  margin-top: 4px;
 }
 
 .logout-btn:hover {
   background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
