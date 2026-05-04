@@ -36,13 +36,20 @@ export default function ActivateRoom() {
         setSuccess("");
 
         try {
-            const res = await api.post(`/room/${roomId}/activateRoom`);
-            setSuccess(res.data || "Room activated successfully!");
-            
-            // Redirect to the room after activation
+            // Step 1: Activate the room on backend (creates LiveKit room)
+            const activateRes = await api.post(`/room/${roomId}/activateRoom`);
+            setSuccess(activateRes.data || "Room activated successfully!");
+
+            // Step 2: Get host token to connect to LiveKit
+            const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
+            const token = tokenRes.data;
+
+            // Redirect to the room with the token
             setTimeout(() => {
-                navigate(`/room/${roomId}`);
-            }, 1500);
+                navigate(`/room/${roomId}`, {
+                    state: { token, role: "HOST" },
+                });
+            }, 800);
         } catch (err) {
             setError(err.response?.data || "Failed to activate room");
         } finally {

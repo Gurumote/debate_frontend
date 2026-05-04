@@ -61,6 +61,9 @@ export default function DashboardPage() {
                     <Link to="/create-room">
                         <button>Host Room</button>
                     </Link>
+                    <Link to="/create-and-join">
+                        <button className="btn-go-live">⚡ Go Live</button>
+                    </Link>
                 </div>
             </div>
 
@@ -89,7 +92,9 @@ export default function DashboardPage() {
                                     `/room/${roomId}/tokenForAuidence`
                                 );
                                 const token = res.data;
-                                navigate(`/room/${roomId}?role=audience&token=${token}`);
+                                navigate(`/room/${roomId}`, {
+                                    state: { token, role: "AUDIENCE" },
+                                });
                             } catch (err) {
                                 console.error("Join failed:", err);
                             }

@@ -287,3 +287,22 @@
   padding: 50px;
   color: var(--text-muted);
 }
+
+/* ================================
+   GO LIVE BUTTON
+================================ */
+
+.btn-go-live {
+  background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+  box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3);
+  animation: goLivePulse 2s ease-in-out infinite;
+}
+
+.btn-go-live:hover {
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.45) !important;
+}
+
+@keyframes goLivePulse {
+  0%, 100% { box-shadow: 0 4px 16px rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 4px 24px rgba(239, 68, 68, 0.5); }
+}

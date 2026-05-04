@@ -7,7 +7,9 @@ import DashboardPage from "../Pages/DashboardPage.jsx";
 import CreateRoomPage from "../Pages/CreateRoomPage.jsx";
 import HostRoomsPage from "../Pages/HostRoomsPage.jsx";
 import JoinPage from "../Pages/JoinPage.jsx";
+import LiveRoomPage from "../Pages/LiveRoomPage.jsx";
 import ActivateRoom from "../Components/ActivateRoom.jsx";
+import CreateAndJoinPage from "../Pages/CreateAndJoinPage.jsx";
 
 const NavigationWrapper = Nav;
 
@@ -91,6 +93,15 @@ function AppContent() {
                         />
 
                         <Route
+                            path="/create-and-join"
+                            element={
+                                <PrivateRoute>
+                                    <CreateAndJoinPage />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
                             path="/create-room"
                             element={
                                 <PrivateRoute>
@@ -118,6 +129,15 @@ function AppContent() {
                         />
 
                         <Route
+                            path="/room/:roomId"
+                            element={
+                                <PrivateRoute>
+                                    <LiveRoomPage />
+                                </PrivateRoute>
+                            }
+                        />
+
+                        <Route
                             path="/host-rooms"
                             element={
                                 <PrivateRoute>
@@ -130,7 +150,7 @@ function AppContent() {
                             path="/ai-battle"
                             element={
                                 <PrivateRoute>
-                                    <div>AI Battle</div>
+                                    <div className="page-loader">AI Battle - Coming Soon</div>
                                 </PrivateRoute>
                             }
                         />
@@ -139,7 +159,7 @@ function AppContent() {
                             path="/profile"
                             element={
                                 <PrivateRoute>
-                                    <div>Profile</div>
+                                    <div className="page-loader">Profile - Coming Soon</div>
                                 </PrivateRoute>
                             }
                         />

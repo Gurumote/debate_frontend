@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../API/axios";
+import { useNavigate } from "react-router-dom";
 import RoomCard from "../Components/RoomCard";
 import { generateRoomThumbnail } from "../utils/imageGenerator";
 import "../CSS/HostRoomsPage.css";
@@ -8,6 +9,7 @@ export default function HostRoomsPage() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchRooms();
@@ -28,11 +30,20 @@ export default function HostRoomsPage() {
 
   const activateRoom = async (roomId) => {
     try {
+      // Step 1: Activate
       await api.post(`/room/${roomId}/activateRoom`);
-      fetchRooms();
+
+      // Step 2: Get host token
+      const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
+      const token = tokenRes.data;
+
+      // Step 3: Navigate into the live room
+      navigate(`/room/${roomId}`, {
+        state: { token, role: "HOST" },
+      });
     } catch (err) {
       console.error("Activation failed", err);
-      setError("Failed to activate room. Try again.");
+      setError(err.response?.data || "Failed to activate room. Try again.");
     }
   };
 

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { api } from "../API/axios";
 import "../CSS/JoinPage.css";
 
@@ -8,6 +9,7 @@ export default function JoinPage() {
   const [team, setTeam] = useState("RED");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   // Fetch room details
   const fetchRoom = async () => {
@@ -39,8 +41,10 @@ export default function JoinPage() {
 
       const token = res.data;
 
-      // Redirect to live room
-      window.location.href = `/live/${roomId}?token=${token}`;
+      // Redirect to live room with token
+      navigate(`/room/${roomId}`, { 
+        state: { token, team } 
+      });
 
     } catch (err) {
       setMessage(err.response?.data || "Failed to join room");
