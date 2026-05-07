@@ -152,10 +152,21 @@
 .livekit-area {
   flex: 1;
   width: 100%;
-  height: 100%;
+  min-height: 0;
   position: relative;
   z-index: 0;
-  background: #1a1a1a;
+  background: var(--cream-dark);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* The LK room itself fills the area */
+.livekit-area > [data-lk-theme] {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Role Selection Screen */

@@ -1,12 +1,13 @@
 import { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../API/axios';
 import { motion } from 'framer-motion';
-import { LiveKitRoom, VideoConference, RoomAudioRenderer } from '@livekit/components-react';
+import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
 import { Swords, Eye, Shield, ArrowLeft, LogOut, Loader2 } from 'lucide-react';
+import DebateRoomLayout from '../Components/DebateRoomLayout';
 import '../CSS/LiveRoom.css';
 
-const ROLE_OPTIONS = [
+const ALL_ROLE_OPTIONS = [
   {
     id: 'RED',
     label: 'Join PRO Side',
@@ -35,15 +36,43 @@ const ROLE_OPTIONS = [
   },
 ];
 
+// Host-only option shown when the room creator enters
+const HOST_ONLY_OPTIONS = [
+  {
+    id: 'HOST',
+    label: 'Enter as Host',
+    icon: Shield,
+    variant: 'role-option--host',
+    span: true,
+  },
+];
+
 export default function LiveRoomPage() {
   const { roomId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
-  const [token, setToken] = useState('');
-  const [roleSelection, setRoleSelection] = useState(true);
+  // Check if we received a token + role from navigation state (e.g. HostRoomsPage activate)
+  const stateToken = location.state?.token;
+  const stateRole = location.state?.role;
+  const isHost = location.state?.isHost || false;
+
+  const [token, setToken] = useState(stateToken || '');
+  const [roleSelection, setRoleSelection] = useState(!stateToken);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [voteCasted, setVoteCasted] = useState(null);
+
+  // Track which role the user actually joined as — drives camera/mic permission
+  const [joinedRole, setJoinedRole] = useState(
+    stateRole || (isHost ? 'HOST' : null)
+  );
+
+  // Audience members: no camera / no mic
+  const isAudience = joinedRole === 'AUDIENCE';
+
+  // Determine which role cards to show
+  const ROLE_OPTIONS = isHost ? HOST_ONLY_OPTIONS : ALL_ROLE_OPTIONS;
 
   const LIVEKIT_URL = import.meta.env.VITE_LIVEKIT_URL || 'wss://your-livekit-server-url.com';
 
@@ -60,6 +89,7 @@ export default function LiveRoomPage() {
 
       const tokenStr = res.data?.token || res.data;
       if (tokenStr && typeof tokenStr === 'string') {
+        setJoinedRole(role);   // ← remember the role BEFORE showing the room
         setToken(tokenStr);
         setRoleSelection(false);
       } else {
@@ -112,9 +142,11 @@ export default function LiveRoomPage() {
             transition={{ type: 'spring', bounce: 0.3, duration: 0.5 }}
             className="role-card"
           >
-            <h1>Choose Your Role</h1>
+            <h1>{isHost ? 'Your Room is Ready!' : 'Choose Your Role'}</h1>
             <p className="role-subtitle">
-              Pick a side or watch the action unfold.
+              {isHost
+                ? 'You created this room — enter as the Host to manage the debate.'
+                : 'Pick a side or watch the action unfold.'}
             </p>
 
             {/* Error */}
@@ -215,17 +247,28 @@ export default function LiveRoomPage() {
         </div>
       </div>
 
-      {/* LiveKit Interface */}
+      {/* Debate Room — 3-column dynamic layout */}
       <div className="livekit-area">
         <LiveKitRoom
-          video={true}
-          audio={true}
+          video={!isAudience}   /* audience: no camera request */
+          audio={!isAudience}   /* audience: no mic request     */
           token={token}
           serverUrl={LIVEKIT_URL}
-          style={{ height: '100%', width: '100%' }}
+          style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
           onDisconnected={leaveRoom}
         >
-          <VideoConference />
+          {/* Custom Google Meet-style team layout */}
+          <DebateRoomLayout
+            canRemove={isHost}
+            isAudience={isAudience}
+            onRemove={async (identity) => {
+              try {
+                await api.post(`/room/${roomId}/remove`, null, { params: { identity } });
+              } catch (err) {
+                console.error('Remove participant failed', err);
+              }
+            }}
+          />
           <RoomAudioRenderer />
         </LiveKitRoom>
       </div>

@@ -51,8 +51,14 @@ export default function CreateAndJoinPage() {
       const createRes = await api.post("/room/createRoom", roomBody);
       const roomId = createRes.data;
 
-      setCreatedRoomId(roomId);
-      setStep(2); // Move to role selection
+      // Auto-fetch HOST token — creator always joins as host
+      const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
+      const token = tokenRes.data?.token || tokenRes.data;
+
+      // Go straight into the live room as HOST (no role selection)
+      navigate(`/room/${roomId}`, {
+        state: { token, role: "HOST" },
+      });
     } catch (err) {
       console.error("Room creation failed:", err);
       setError(err.response?.data || "Failed to create room. Try again.");

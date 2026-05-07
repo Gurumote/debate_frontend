@@ -1,102 +1,157 @@
 import { useState } from "react";
 import { api } from "../API/axios";
 import { useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
-import "../CSS/createRoomPage.css";
-import "../CSS/auth.css";
+import "../CSS/CreateAndJoinPage.css";
 
 export default function CreateRoomPage() {
   const [roomName, setRoomName] = useState("");
   const [teamSize, setTeamSize] = useState(4);
   const [endTime, setEndTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
 
   const navigate = useNavigate();
 
+  // Get minimum datetime (now + 5 minutes)
+  const getMinEndTime = () => {
+    const now = new Date();
+    now.setMinutes(now.getMinutes() + 5);
+    return now.toISOString().slice(0, 16);
+  };
+
   const createRoom = async () => {
-    if (!roomName.trim()) return;
+    if (!roomName.trim()) {
+      setError("Room name is required");
+      return;
+    }
+    if (teamSize < 1 || teamSize > 50) {
+      setError("Team size must be between 1 and 50");
+      return;
+    }
 
     setLoading(true);
+    setError("");
 
     try {
       await api.post("/room/createRoom", {
-        roomName: roomName,
-        teamSize: teamSize || 0,
+        roomName: roomName.trim(),
+        teamSize: teamSize,
         debateType: "VIDEO",
-        endTime: endTime ? new Date(endTime).toISOString() : null
+        endTime: endTime ? new Date(endTime).toISOString() : null,
       });
 
       navigate("/host-rooms");
     } catch (err) {
       console.error("Room creation failed", err);
+      setError(err.response?.data || "Failed to create room. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="auth-page">
-      <motion.div
-        className="auth-card"
-        initial={{ opacity: 0, y: 20, scale: 0.98 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ type: "spring", bounce: 0.3, duration: 0.5 }}
-      >
-
-        <div className="auth-header">
-          <h2 className="auth-title">Create Debate Room</h2>
-          <p className="auth-sub">Set up a new room for your next argument</p>
+    <div className="caj-page">
+      <div className="caj-card">
+        {/* Header */}
+        <div className="caj-header">
+          <div className="caj-icon">🎭</div>
+          <h1 className="caj-title">Create Debate Room</h1>
+          <p className="caj-subtitle">
+            Set up a new room — you can activate it later from My Rooms
+          </p>
         </div>
 
-        {/* Room Name */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-          <div className="auth-field">
+        {/* Form */}
+        <div className="caj-form">
+          {/* Room Name */}
+          <div className="caj-field">
+            <label htmlFor="create-room-name">Room Name</label>
             <input
-              className="auth-input"
-              placeholder="Enter room name..."
+              id="create-room-name"
+              type="text"
+              placeholder="e.g. AI vs Humanity"
               value={roomName}
               onChange={(e) => setRoomName(e.target.value)}
-              id="create-room-name"
-              aria-label="Room name"
+              maxLength={100}
+              autoFocus
             />
           </div>
 
           {/* Team Size */}
-          <div className="auth-field">
-            <input
-              className="auth-input"
-              type="number"
-              placeholder="Team size (default 4)"
-              value={teamSize}
-              onChange={(e) => setTeamSize(Number(e.target.value))}
-              id="create-team-size"
-              aria-label="Team size"
-            />
+          <div className="caj-field">
+            <label htmlFor="create-team-size">Team Size</label>
+            <div className="caj-stepper">
+              <button
+                type="button"
+                className="stepper-btn"
+                onClick={() => setTeamSize(Math.max(1, teamSize - 1))}
+                disabled={teamSize <= 1}
+              >
+                −
+              </button>
+              <input
+                id="create-team-size"
+                type="number"
+                min="1"
+                max="50"
+                value={teamSize}
+                onChange={(e) => setTeamSize(Math.max(1, Number(e.target.value)))}
+              />
+              <button
+                type="button"
+                className="stepper-btn"
+                onClick={() => setTeamSize(Math.min(50, teamSize + 1))}
+                disabled={teamSize >= 50}
+              >
+                +
+              </button>
+            </div>
+            <span className="caj-hint">
+              {teamSize} per side · {teamSize * 2 + 1} total (including host)
+            </span>
           </div>
 
           {/* End Time */}
-          <div className="auth-field">
+          <div className="caj-field">
+            <label htmlFor="create-end-time">Debate Ends At</label>
             <input
-              className="auth-input"
+              id="create-end-time"
               type="datetime-local"
               value={endTime}
               onChange={(e) => setEndTime(e.target.value)}
-              id="create-end-time"
-              aria-label="Debate end time"
+              min={getMinEndTime()}
             />
           </div>
 
-          <motion.button
-            className="auth-btn"
-            onClick={createRoom}
-            disabled={loading}
-            whileTap={{ scale: 0.97 }}
-          >
-            {loading ? "Creating..." : "🚀 Create Room"}
-          </motion.button>
-        </div>
+          {/* Error */}
+          {error && <div className="caj-error">{error}</div>}
 
-      </motion.div>
+          {/* Actions */}
+          <div className="caj-actions">
+            <button
+              className="caj-btn-secondary"
+              onClick={() => navigate("/host-rooms")}
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              className="caj-btn-primary"
+              onClick={createRoom}
+              disabled={loading}
+            >
+              {loading ? (
+                <>
+                  <span className="caj-spinner" />
+                  Creating…
+                </>
+              ) : (
+                <>🎭 Create Room</>
+              )}
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }

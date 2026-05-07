@@ -71,7 +71,7 @@ export default function HostRoomsPage() {
             {rooms.length} draft room{rooms.length !== 1 ? "s" : ""} ready to activate
           </p>
         </div>
-        <button className="btn-new-room" onClick={() => {/* navigate to create */}}>
+        <button className="btn-new-room" onClick={() => {/* navigate to create */ }}>
           + Create New Room
         </button>
       </header>
@@ -138,8 +138,8 @@ function RoomCardModern({ room, thumbnail, onActivate }) {
         {!imageError ? (
           <>
             {imageLoading && <div className="room-thumb-skeleton" />}
-            <img 
-              src={thumbnail} 
+            <img
+              src={thumbnail}
               alt={room.roomName}
               onLoad={handleImageLoad}
               onError={handleImageError}
@@ -159,7 +159,7 @@ function RoomCardModern({ room, thumbnail, onActivate }) {
 
       <div className="card-content">
         <h3 className="card-title">{room.roomName}</h3>
-        
+
         {room.description && (
           <p className="card-description">{room.description}</p>
         )}
