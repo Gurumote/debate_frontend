@@ -3,6 +3,7 @@ import {Navigate, Route, Routes} from "react-router-dom";
 import {Suspense} from "react";
 import AuthPage from "../Pages/Auth.jsx";
 import Nav from "../Pages/Nav.jsx";
+import LandingPage from "../Pages/LandingPage.jsx";
 import DashboardPage from "../Pages/DashboardPage.jsx";
 import CreateRoomPage from "../Pages/CreateRoomPage.jsx";
 import HostRoomsPage from "../Pages/HostRoomsPage.jsx";
@@ -20,8 +21,9 @@ function PrivateRoute({ children }) {
 
 function PublicRoute({ children }) {
     const { user } = useAuth();
-    return !user ? children : <Navigate to="/homepage" replace />;
+    return !user ? children : <Navigate to="/dashboard" replace />;
 }
+
 function AppContent() {
     const { loading, user } = useAuth();
 
@@ -42,10 +44,17 @@ function AppContent() {
                 <Suspense fallback={<div className="page-loader">Loading...</div>}>
                     <Routes>
 
-                        {/* Default */}
-                        <Route path="/" element={<Navigate to="/homepage" replace />} />
+                        {/* Default — Landing for guests, Dashboard for users */}
+                        <Route path="/" element={
+                            user ? <Navigate to="/dashboard" replace /> : <LandingPage />
+                        } />
 
-                        {/* Public */}
+                        {/* Landing page (public) */}
+                        <Route path="/homepage" element={
+                            user ? <Navigate to="/dashboard" replace /> : <LandingPage />
+                        } />
+
+                        {/* Public Auth */}
                         <Route
                             path="/auth"
                             element={
@@ -71,18 +80,7 @@ function AppContent() {
                             }
                         />
 
-                        {/* Core Pages (DON’T COMMENT THESE) */}
-                        {/* Put at least one real page */}
-                        <Route
-                            path="/homepage"
-                            element={
-                                <PrivateRoute>
-                                    <DashboardPage />
-                                </PrivateRoute>
-                            }
-                        />
-
-                        {/* Protected */}
+                        {/* Core Protected Pages */}
                         <Route
                             path="/dashboard"
                             element={
@@ -150,7 +148,7 @@ function AppContent() {
                             path="/ai-battle"
                             element={
                                 <PrivateRoute>
-                                    <div className="page-loader">AI Battle - Coming Soon</div>
+                                    <div className="page-loader">AI Battle — Coming Soon</div>
                                 </PrivateRoute>
                             }
                         />
@@ -159,13 +157,13 @@ function AppContent() {
                             path="/profile"
                             element={
                                 <PrivateRoute>
-                                    <div className="page-loader">Profile - Coming Soon</div>
+                                    <div className="page-loader">Profile — Coming Soon</div>
                                 </PrivateRoute>
                             }
                         />
 
-                        {/* Catch */}
-                        <Route path="*" element={<Navigate to="/homepage" replace />} />
+                        {/* Catch-all */}
+                        <Route path="*" element={<Navigate to="/" replace />} />
 
                     </Routes>
                 </Suspense>

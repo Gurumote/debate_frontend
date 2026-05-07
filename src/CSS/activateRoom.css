@@ -1,206 +1,167 @@
-/* ================================
-   ACTIVATE ROOM CONTAINER
-================================ */
+/* ===== The Counterpoint — Activate Room ===== */
 
 .activate-room-container {
   min-height: calc(100dvh - var(--nav-height));
-  padding: 28px;
-  background: var(--surface-base);
   display: flex;
+  align-items: flex-start;
   justify-content: center;
-  align-items: center;
-  position: relative;
-  overflow: hidden;
-  color: var(--text-primary);
+  padding: 48px 24px;
+  background: var(--cream);
 }
-
-/* Background glow */
-.activate-room-container::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background:
-    radial-gradient(circle at 20% 10%, rgba(99,102,241,0.08), transparent 45%),
-    radial-gradient(circle at 80% 80%, rgba(37,99,235,0.06), transparent 40%);
-  pointer-events: none;
-}
-
-/* ================================
-   ACTIVATE ROOM CARD
-================================ */
 
 .activate-room-card {
-  position: relative;
-  z-index: 1;
-  max-width: 480px;
   width: 100%;
-  padding: 48px 32px;
-  background: rgba(15, 23, 42, 0.6);
+  max-width: 580px;
+  background: white;
   border: 1px solid var(--border);
-  border-radius: 16px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: var(--radius-xl);
+  padding: 36px 32px;
+  box-shadow: var(--shadow-lg);
 }
 
 .activate-room-card h1 {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   font-weight: 800;
-  margin-bottom: 12px;
-  color: var(--text-primary);
+  color: var(--sage-dark);
+  margin-bottom: 6px;
+  letter-spacing: -0.03em;
 }
 
 .activate-room-card .description {
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  margin-bottom: 28px;
-  line-height: 1.5;
+  font-size: 0.875rem;
+  color: var(--mint);
+  margin-bottom: 24px;
 }
 
-/* ================================
-   TABS STYLING
-================================ */
-
+/* Tabs */
 .activate-tabs {
   display: flex;
-  gap: 12px;
+  gap: 0;
+  background: var(--cream);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 3px;
   margin-bottom: 24px;
-  border-bottom: 1px solid var(--border);
 }
 
 .tab-btn {
   flex: 1;
-  padding: 12px 16px;
-  background: transparent;
-  border: none;
-  border-bottom: 3px solid transparent;
-  color: var(--text-secondary);
+  padding: 9px 14px;
+  font-size: 0.82rem;
   font-weight: 600;
+  font-family: var(--font-body);
+  border: none;
+  background: none;
+  border-radius: calc(var(--radius-md) - 2px);
+  color: var(--mint);
   cursor: pointer;
-  transition: all 0.2s;
-  font-size: 0.95rem;
+  transition: all var(--duration-fast) var(--ease-out);
 }
 
 .tab-btn:hover {
-  color: var(--text-primary);
+  color: var(--sage);
 }
 
 .tab-btn.active {
-  color: var(--accent);
-  border-bottom-color: var(--accent);
+  background: white;
+  color: var(--sage-dark);
+  box-shadow: var(--shadow-xs);
+  font-weight: 700;
 }
 
-/* ================================
-   TAB CONTENT
-================================ */
-
+/* Tab Content */
 .tab-content {
-  min-height: 300px;
+  animation: fadeIn 0.2s ease-out;
 }
 
-.loading-state {
-  padding: 40px 20px;
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 0.95rem;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
-.empty-rooms {
-  padding: 40px 20px;
-  text-align: center;
-  border: 1px dashed var(--border);
-  border-radius: 12px;
-  background: rgba(99, 102, 241, 0.05);
-}
-
-.empty-rooms p {
-  color: var(--text-primary);
-  margin: 0 0 8px 0;
-}
-
-.empty-rooms small {
-  color: var(--text-secondary);
-  display: block;
-}
-
-/* ================================
-   ROOMS LIST
-================================ */
-
+/* Room List */
 .rooms-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 8px;
 }
 
 .room-item {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  padding: 16px;
+  justify-content: space-between;
+  padding: 14px 16px;
+  background: var(--cream);
   border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.4);
-  transition: all 0.2s;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+  gap: 12px;
 }
 
 .room-item:hover {
-  border-color: var(--accent);
-  background: rgba(99, 102, 241, 0.08);
+  border-color: rgba(168, 187, 163, 0.4);
+  background: rgba(151, 168, 122, 0.04);
 }
 
-.room-info {
+.room-item .room-info {
   flex: 1;
+  min-width: 0;
 }
 
-.room-info h4 {
-  margin: 0 0 8px 0;
-  font-size: 1rem;
+.room-item .room-info h4 {
+  font-size: 0.9rem;
   font-weight: 700;
-  color: var(--text-primary);
+  color: var(--sage);
+  margin-bottom: 3px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .room-details {
-  margin: 0 0 6px 0;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
+  font-size: 0.75rem;
+  color: var(--mint);
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .room-details .status-badge {
-  display: inline-block;
   padding: 2px 8px;
-  background: rgba(34, 197, 94, 0.1);
-  color: #86efac;
-  border-radius: 4px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: capitalize;
+  font-size: 0.65rem;
+  font-weight: 700;
+  background: var(--mint-faint);
+  color: var(--sage);
+  border-radius: var(--radius-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
 }
 
 .room-topic {
-  margin: 0;
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 0.75rem;
+  color: var(--mint);
+  margin-top: 2px;
 }
 
 .room-activate-btn {
-  padding: 8px 16px;
-  margin-left: 12px;
-  border: none;
-  border-radius: 8px;
-  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  padding: 8px 18px;
+  background: var(--cta);
   color: white;
-  font-weight: 600;
-  font-size: 0.9rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.8rem;
+  font-weight: 700;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-cta);
   white-space: nowrap;
 }
 
 .room-activate-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+  background: var(--cta-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
 }
 
 .room-activate-btn:disabled {
@@ -208,94 +169,61 @@
   cursor: not-allowed;
 }
 
-/* ================================
-   FORM STYLING
-================================ */
-
-.activate-room-card form {
-  margin-bottom: 28px;
-}
-
+/* Code Entry */
 .form-group {
-  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
 }
 
 .form-group label {
-  display: block;
-  font-size: 0.9rem;
-  font-weight: 600;
-  color: var(--text-primary);
-  margin-bottom: 8px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--sage);
 }
 
 .room-code-input {
-  width: 100%;
-  padding: 12px 16px;
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  background: rgba(15, 23, 42, 0.4);
-  color: var(--text-primary);
-  font-size: 1rem;
-  transition: all 0.2s;
+  padding: 12px 14px;
+  font-size: 0.9rem;
+  font-family: var(--font-body);
+  color: var(--sage-dark);
+  background: var(--cream);
+  border: 1.5px solid var(--border);
+  border-radius: var(--radius-md);
+  outline: none;
+  transition: all var(--duration-fast) var(--ease-out);
+  font-weight: 500;
 }
 
 .room-code-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+  border-color: var(--sage);
+  box-shadow: 0 0 0 3px rgba(151, 168, 122, 0.12);
 }
 
-.room-code-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+.room-code-input::placeholder {
+  color: var(--mint);
 }
-
-/* ================================
-   MESSAGES
-================================ */
-
-.error-message {
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  border-radius: 8px;
-  color: #fca5a5;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-.success-message {
-  padding: 12px 16px;
-  margin-bottom: 16px;
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  border-radius: 8px;
-  color: #86efac;
-  font-size: 0.9rem;
-  text-align: center;
-}
-
-/* ================================
-   BUTTONS
-================================ */
 
 .activate-btn {
   width: 100%;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 12px;
-  background: linear-gradient(135deg, var(--accent), #4f46e5);
+  padding: 13px 20px;
+  background: var(--cta);
   color: white;
-  font-weight: 600;
-  font-size: 1rem;
+  border: none;
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-cta);
 }
 
 .activate-btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  filter: brightness(1.1);
+  background: var(--cta-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
 }
 
 .activate-btn:disabled {
@@ -303,74 +231,81 @@
   cursor: not-allowed;
 }
 
-/* ================================
-   INFO SECTION
-================================ */
-
+/* Info Section */
 .info-section {
-  padding-top: 28px;
-  border-top: 1px solid var(--border);
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--cream);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
 }
 
 .info-section h3 {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 12px;
+  color: var(--sage);
+  margin-bottom: 10px;
 }
 
 .info-section ul {
-  list-style: none;
-  padding: 0;
   margin: 0;
+  padding-left: 18px;
 }
 
 .info-section li {
-  padding: 8px 0;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
+  font-size: 0.8rem;
+  color: var(--mint);
+  margin-bottom: 6px;
+  line-height: 1.5;
+}
+
+/* Messages */
+.error-message {
+  padding: 10px 14px;
+  background: rgba(229, 115, 115, 0.08);
+  border: 1px solid rgba(229, 115, 115, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--danger);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+.success-message {
+  padding: 10px 14px;
+  background: rgba(124, 179, 66, 0.08);
+  border: 1px solid rgba(124, 179, 66, 0.2);
+  border-radius: var(--radius-md);
+  color: var(--success);
+  font-size: 0.82rem;
+  font-weight: 600;
+  margin-top: 12px;
+}
+
+/* Empty State */
+.empty-rooms {
+  text-align: center;
+  padding: 32px 16px;
+}
+
+.empty-rooms p {
+  font-size: 0.9rem;
+  color: var(--sage);
+  font-weight: 600;
+}
+
+.empty-rooms small {
+  font-size: 0.8rem;
+  color: var(--mint);
+}
+
+/* Loading */
+.loading-state {
   display: flex;
   align-items: center;
-}
-
-.info-section li:before {
-  content: "✓";
-  display: inline-block;
-  margin-right: 8px;
-  color: var(--accent);
-  font-weight: bold;
-}
-
-/* ================================
-   RESPONSIVE
-================================ */
-
-@media (max-width: 640px) {
-  .activate-room-card {
-    padding: 32px 20px;
-  }
-
-  .activate-room-card h1 {
-    font-size: 1.4rem;
-  }
-
-  .room-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 12px;
-  }
-
-  .room-activate-btn {
-    width: 100%;
-    margin-left: 0;
-  }
-
-  .activate-tabs {
-    gap: 0;
-  }
-
-  .tab-btn {
-    padding: 10px 12px;
-    font-size: 0.85rem;
-  }
+  justify-content: center;
+  padding: 40px;
+  color: var(--mint);
+  font-size: 0.9rem;
+  font-weight: 500;
 }

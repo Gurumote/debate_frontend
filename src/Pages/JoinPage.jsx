@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { api } from "../API/axios";
-import "../CSS/JoinPage.css";
+import { Search, ArrowRight } from "lucide-react";
+import "../CSS/Joinpage.css";
 
 export default function JoinPage() {
   const [roomId, setRoomId] = useState("");
@@ -64,8 +65,13 @@ export default function JoinPage() {
           placeholder="Enter Room ID"
           value={roomId}
           onChange={(e) => setRoomId(e.target.value)}
+          id="join-room-id"
+          aria-label="Room ID"
         />
-        <button onClick={fetchRoom}>Check</button>
+        <button onClick={fetchRoom} aria-label="Check room availability">
+          <Search size={15} style={{ marginRight: 4, verticalAlign: 'middle' }} />
+          Check
+        </button>
       </div>
 
       {/* Room Info */}
@@ -77,20 +83,24 @@ export default function JoinPage() {
         </div>
       )}
 
-      {/* Team Selection */}
+      {/* Team Selection — PRO / CON */}
       <div className="team-select">
         <button
           className={team === "RED" ? "active red" : ""}
           onClick={() => setTeam("RED")}
+          aria-label="Join PRO side"
+          aria-pressed={team === "RED"}
         >
-          RED
+          PRO
         </button>
 
         <button
           className={team === "BLUE" ? "active blue" : ""}
           onClick={() => setTeam("BLUE")}
+          aria-label="Join CON side"
+          aria-pressed={team === "BLUE"}
         >
-          BLUE
+          CON
         </button>
       </div>
 
@@ -99,12 +109,17 @@ export default function JoinPage() {
       </p>
 
       {/* Join Button */}
-      <button onClick={joinRoom} disabled={loading}>
-        {loading ? "Joining..." : "Join Room"}
+      <button onClick={joinRoom} disabled={loading} aria-label="Join the debate room">
+        {loading ? "Joining..." : (
+          <>
+            Join Room
+            <ArrowRight size={16} style={{ marginLeft: 6, verticalAlign: 'middle' }} />
+          </>
+        )}
       </button>
 
       {/* Error / Info */}
-      {message && <p className="message">{message}</p>}
+      {message && <p className="message" role="alert">{message}</p>}
     </div>
   );
 }

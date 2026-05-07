@@ -51,7 +51,7 @@ export default function RoomCard({
                 className="room-thumb"
                 onLoad={handleImageLoad}
                 onError={handleImageError}
-                crossOrigin="anonymous"
+                
               />
             </>
           ) : (

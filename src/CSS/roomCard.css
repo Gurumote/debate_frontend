@@ -1,193 +1,156 @@
+/* ===== The Counterpoint — Room Card ===== */
+
 .room-card {
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  overflow: hidden;
   background: white;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  height: 100%;
+  border: 1px solid rgba(168, 187, 163, 0.25);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: all var(--duration-normal) var(--ease-out);
+  box-shadow: var(--shadow-sm);
 }
 
 .room-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-color: rgba(168, 187, 163, 0.4);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-3px);
 }
 
+/* Thumbnail */
 .room-thumb-container {
   position: relative;
   width: 100%;
-  height: 180px;
-  background: #f0f0f0;
+  aspect-ratio: 16 / 9;
   overflow: hidden;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--cream-dark);
 }
 
 .room-thumb {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  display: block;
-  animation: fadeIn 0.5s ease-in-out;
-  z-index: 2;
+  transition: transform var(--duration-slow) var(--ease-out);
 }
 
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
+.room-card:hover .room-thumb {
+  transform: scale(1.04);
 }
 
 .room-thumb-skeleton {
   position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #f0f0f0 25%,
-    #e0e0e0 50%,
-    #f0f0f0 75%
-  );
-  background-size: 200% 100%;
-  animation: loading 1.5s infinite;
-  z-index: 1;
+  inset: 0;
+  background: linear-gradient(110deg, var(--cream-dark) 30%, var(--cream) 50%, var(--cream-dark) 70%);
+  background-size: 400% 100%;
+  animation: shimmer 1.8s ease-in-out infinite;
 }
 
-@keyframes loading {
-  0% {
-    background-position: 200% 0;
-  }
-  100% {
-    background-position: -200% 0;
-  }
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
 }
 
 .room-thumb-fallback {
   width: 100%;
-  height: 180px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  color: white;
-  text-align: center;
-  padding: 16px;
-  box-sizing: border-box;
+  gap: 8px;
+  background: linear-gradient(135deg, rgba(151, 168, 122, 0.08), rgba(168, 187, 163, 0.12));
 }
 
 .fallback-icon {
-  font-size: 48px;
+  font-size: 2rem;
 }
 
 .room-thumb-fallback span {
-  font-size: 12px;
+  font-size: 0.82rem;
+  color: var(--mint);
   font-weight: 500;
-  max-width: 100%;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
 }
 
+/* Content */
 .room-content {
-  flex: 1;
-  padding: 16px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  padding: 16px 18px 8px;
+  transition: background var(--duration-fast) var(--ease-out);
 }
 
 .room-content:hover {
-  background: #f8f8f8;
+  background: rgba(151, 168, 122, 0.03);
 }
 
 .room-content h3 {
-  margin: 0 0 12px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #1a1a1a;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--sage);
+  margin-bottom: 6px;
+  line-height: 1.35;
+  letter-spacing: -0.01em;
 }
 
 .room-content p {
-  margin: 8px 0;
-  color: #666;
-  font-size: 14px;
+  font-size: 0.82rem;
+  color: var(--mint);
+  font-weight: 500;
 }
 
 .room-content small {
-  color: #999;
-  font-size: 12px;
-  display: block;
-  margin-top: 8px;
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--mint);
+  font-weight: 500;
+  padding: 3px 8px;
+  background: var(--mint-faint);
+  border-radius: var(--radius-sm);
 }
 
+/* Actions */
 .room-actions {
-  padding: 0 16px 16px 16px;
+  padding: 10px 18px 16px;
   display: flex;
   gap: 8px;
-  flex-wrap: wrap;
 }
 
-.room-actions button {
+.btn-activate,
+.btn-join {
   flex: 1;
-  min-width: 120px;
   padding: 10px 16px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  font-weight: 500;
+  border-radius: var(--radius-md);
+  font-size: 0.82rem;
+  font-weight: 700;
+  font-family: var(--font-body);
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all var(--duration-normal) var(--ease-out);
+  border: none;
 }
 
 .btn-activate {
-  background: #4f46e5;
+  background: var(--cta);
   color: white;
+  box-shadow: var(--shadow-cta);
 }
 
 .btn-activate:hover {
-  background: #4338ca;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(79, 70, 229, 0.3);
-}
-
-.btn-activate:active {
-  transform: translateY(0);
+  background: var(--cta-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
 }
 
 .btn-join {
-  background: #10b981;
+  background: var(--sage);
   color: white;
+  box-shadow: 0 2px 8px rgba(151, 168, 122, 0.25);
 }
 
 .btn-join:hover {
-  background: #059669;
-  transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+  background: var(--sage-dark);
+  transform: translateY(-1px);
 }
 
-.btn-join:active {
-  transform: translateY(0);
-}
-
-@media (max-width: 768px) {
-  .room-content h3 {
-    font-size: 16px;
-  }
-
-  .room-actions button {
-    min-width: 100px;
-    padding: 8px 12px;
-    font-size: 13px;
-  }
+.btn-activate:disabled,
+.btn-join:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
 }

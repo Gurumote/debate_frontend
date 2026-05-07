@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { api } from "../API/axios";
 import { useNavigate, Link } from "react-router-dom";
-import { RefreshCw } from "lucide-react";
+import { RefreshCw, Plus, Zap, Users } from "lucide-react";
 import RoomCard from "../Components/RoomCard";
 import { generateRoomThumbnail } from "../utils/imageGenerator";
 import "../CSS/dashboard.css";
@@ -49,6 +49,7 @@ export default function DashboardPage() {
                         onClick={handleRefresh}
                         disabled={refreshing}
                         title="Refresh rooms"
+                        aria-label="Refresh debate rooms"
                     >
                         <RefreshCw size={18} />
                     </button>
@@ -56,13 +57,22 @@ export default function DashboardPage() {
 
                 <div className="dashboard-header-buttons">
                     <Link to="/join">
-                        <button>Join Room</button>
+                        <button aria-label="Join an existing room">
+                            <Users size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                            Join Room
+                        </button>
                     </Link>
                     <Link to="/create-room">
-                        <button>Host Room</button>
+                        <button aria-label="Host a new room">
+                            <Plus size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                            Host Room
+                        </button>
                     </Link>
                     <Link to="/create-and-join">
-                        <button className="btn-go-live">⚡ Go Live</button>
+                        <button className="btn-go-live" aria-label="Go live now">
+                            <Zap size={15} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                            Go Live
+                        </button>
                     </Link>
                 </div>
             </div>
@@ -70,14 +80,16 @@ export default function DashboardPage() {
             {/* Empty State */}
             {rooms.length === 0 && (
                 <div className="dashboard-empty">
-                    <h2>No Rooms Available</h2>
-                    <Link to="/create-room">
-                        <button>Create Room</button>
+                    <div style={{ fontSize: '3rem', marginBottom: 8 }}>💬</div>
+                    <h2>No Active Debates</h2>
+                    <p style={{ color: 'var(--mint)', marginBottom: 8 }}>Be the first to start a conversation</p>
+                    <Link to="/create-and-join">
+                        <button>Start a Debate</button>
                     </Link>
                 </div>
             )}
 
-            {/* Rooms */}
+            {/* Rooms Grid */}
             <div className="dashboard-rooms">
                 {rooms.map((room) => (
                     <RoomCard

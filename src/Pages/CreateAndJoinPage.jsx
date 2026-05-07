@@ -11,6 +11,10 @@ export default function CreateAndJoinPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
+  // Step 2 state
+  const [step, setStep] = useState(1); // 1 = form, 2 = role pick
+  const [createdRoomId, setCreatedRoomId] = useState(null);
+
   // Get minimum datetime (now + 5 minutes)
   const getMinEndTime = () => {
     const now = new Date();
@@ -18,7 +22,8 @@ export default function CreateAndJoinPage() {
     return now.toISOString().slice(0, 16);
   };
 
-  const handleCreateAndJoin = async () => {
+  // ── Step 1: Create the room ──
+  const handleCreateRoom = async () => {
     if (!roomName.trim()) {
       setError("Room name is required");
       return;
@@ -43,26 +48,134 @@ export default function CreateAndJoinPage() {
         endTime: new Date(endTime).toISOString(),
       };
 
-      // Step 1: Create the room → returns room ID
       const createRes = await api.post("/room/createRoom", roomBody);
       const roomId = createRes.data;
 
-      // Step 2: Get HOST token (this also auto-activates the room)
-      const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
-      const token = tokenRes.data;
-
-      // Step 3: Navigate into the live room as HOST
-      navigate(`/room/${roomId}`, {
-        state: { token, role: "HOST" },
-      });
+      setCreatedRoomId(roomId);
+      setStep(2); // Move to role selection
     } catch (err) {
-      console.error("Create & Join failed:", err);
+      console.error("Room creation failed:", err);
       setError(err.response?.data || "Failed to create room. Try again.");
     } finally {
       setLoading(false);
     }
   };
 
+  // ── Step 2: Join with chosen role ──
+  const handleJoinAs = async (role) => {
+    if (!createdRoomId) return;
+
+    setLoading(true);
+    setError("");
+
+    try {
+      let res;
+      if (role === "AUDIENCE") {
+        res = await api.post(`/room/${createdRoomId}/tokenForAuidence`);
+      } else {
+        res = await api.post(`/room/${createdRoomId}/token?team=${role}`);
+      }
+
+      const token = res.data?.token || res.data;
+
+      navigate(`/room/${createdRoomId}`, {
+        state: { token, role },
+      });
+    } catch (err) {
+      console.error("Join failed:", err);
+      setError(err.response?.data || "Failed to join. Try again.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // ═══════════════════════════════════════
+  //  STEP 2 — Role Selection
+  // ═══════════════════════════════════════
+  if (step === 2) {
+    return (
+      <div className="caj-page">
+        <div className="caj-card caj-card--wide">
+          {/* Header */}
+          <div className="caj-header">
+            <div className="caj-icon">🎯</div>
+            <h1 className="caj-title">Room Created!</h1>
+            <p className="caj-subtitle">
+              <strong>"{roomName}"</strong> is ready. How do you want to join?
+            </p>
+            <span className="caj-room-id">Room&nbsp;ID:&nbsp;{createdRoomId}</span>
+          </div>
+
+          {error && <div className="caj-error">{error}</div>}
+
+          {/* Role Grid */}
+          <div className="caj-role-grid">
+            {/* HOST */}
+            <button
+              className="caj-role-card caj-role--host"
+              onClick={() => handleJoinAs("HOST")}
+              disabled={loading}
+            >
+              <span className="caj-role-icon">🛡️</span>
+              <span className="caj-role-label">Join as Host</span>
+              <span className="caj-role-desc">
+                Moderate the debate, manage participants &amp; control the room.
+              </span>
+            </button>
+
+            {/* RED */}
+            <button
+              className="caj-role-card caj-role--red"
+              onClick={() => handleJoinAs("RED")}
+              disabled={loading}
+            >
+              <span className="caj-role-icon">⚔️</span>
+              <span className="caj-role-label">Join RED Team</span>
+              <span className="caj-role-desc">
+                Argue for the proposition. Convince the audience you're right!
+              </span>
+            </button>
+
+            {/* BLUE */}
+            <button
+              className="caj-role-card caj-role--blue"
+              onClick={() => handleJoinAs("BLUE")}
+              disabled={loading}
+            >
+              <span className="caj-role-icon">⚔️</span>
+              <span className="caj-role-label">Join BLUE Team</span>
+              <span className="caj-role-desc">
+                Argue for the opposition. Tear down every argument!
+              </span>
+            </button>
+          </div>
+
+          {/* Loading indicator */}
+          {loading && (
+            <div className="caj-joining">
+              <span className="caj-spinner" />
+              Joining room…
+            </div>
+          )}
+
+          {/* Back / cancel */}
+          <div className="caj-actions" style={{ marginTop: 12 }}>
+            <button
+              className="caj-btn-secondary"
+              onClick={() => navigate("/host-rooms")}
+              type="button"
+            >
+              Skip — go to My Rooms
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ═══════════════════════════════════════
+  //  STEP 1 — Room Details Form
+  // ═══════════════════════════════════════
   return (
     <div className="caj-page">
       <div className="caj-card">
@@ -71,7 +184,7 @@ export default function CreateAndJoinPage() {
           <div className="caj-icon">⚡</div>
           <h1 className="caj-title">Create & Go Live</h1>
           <p className="caj-subtitle">
-            Set up your debate room and jump in instantly as the host
+            Set up your debate room — then choose how you want to enter
           </p>
         </div>
 
@@ -121,7 +234,7 @@ export default function CreateAndJoinPage() {
               </button>
             </div>
             <span className="caj-hint">
-              {teamSize} per side · {teamSize * 2 + 1} total (including you)
+              {teamSize} per side · {teamSize * 2 + 1} total (including host)
             </span>
           </div>
 
@@ -151,16 +264,16 @@ export default function CreateAndJoinPage() {
             </button>
             <button
               className="caj-btn-primary"
-              onClick={handleCreateAndJoin}
+              onClick={handleCreateRoom}
               disabled={loading}
             >
               {loading ? (
                 <>
                   <span className="caj-spinner" />
-                  Going Live...
+                  Creating…
                 </>
               ) : (
-                <>⚡ Create & Go Live</>
+                <>🚀 Create Room</>
               )}
             </button>
           </div>

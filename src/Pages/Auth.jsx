@@ -1,9 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Mail, Lock, User, ArrowRight, Zap, AlertCircle } from "lucide-react";
-import logo from "../assets/logo.png";
 import "../CSS/auth.css";
 
 export default function AuthPage() {
@@ -43,7 +42,7 @@ export default function AuthPage() {
 
     return (
         <div className="auth-page">
-            <div className="auth-bg-glow" />
+            <div className="auth-bg-glow" aria-hidden="true" />
 
             <motion.div
                 className="auth-card"
@@ -53,11 +52,13 @@ export default function AuthPage() {
             >
                 {/* HEADER */}
                 <div className="auth-header">
-                    <img src={logo} alt="ArgueMind" className="auth-logo" />
-
-                    <h1 className="auth-title">
-                        {isLogin ? "Welcome Back" : "Join the Debate"}
+                    <h1 className="auth-title" style={{ fontSize: '1.3rem', marginBottom: '16px' }}>
+                        The Counterpoint<span style={{ color: 'var(--cta)' }}>.</span>
                     </h1>
+
+                    <h2 className="auth-title">
+                        {isLogin ? "Welcome Back" : "Join the Debate"}
+                    </h2>
 
                     <p className="auth-sub">
                         {isLogin
@@ -85,6 +86,8 @@ export default function AuthPage() {
                                         onChange={(e) => setUsername(e.target.value)}
                                         required={!isLogin}
                                         className="auth-input"
+                                        id="auth-username"
+                                        autoComplete="username"
                                     />
                                 </div>
                             </motion.div>
@@ -100,6 +103,8 @@ export default function AuthPage() {
                             onChange={(e) => setEmail(e.target.value)}
                             required
                             className="auth-input"
+                            id="auth-email"
+                            autoComplete="email"
                         />
                     </div>
 
@@ -112,6 +117,8 @@ export default function AuthPage() {
                             onChange={(e) => setPassword(e.target.value)}
                             required
                             className="auth-input"
+                            id="auth-password"
+                            autoComplete={isLogin ? "current-password" : "new-password"}
                         />
                     </div>
 
@@ -123,6 +130,7 @@ export default function AuthPage() {
                                 initial={{ opacity: 0, y: -10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
+                                role="alert"
                             >
                                 <AlertCircle size={16} />
                                 <span>{error}</span>
@@ -152,7 +160,7 @@ export default function AuthPage() {
                 <div className="auth-toggle">
                     {isLogin ? (
                         <>
-                            Don’t have an account?{" "}
+                            Don't have an account?{" "}
                             <button
                                 onClick={() => {
                                     setIsLogin(false);
