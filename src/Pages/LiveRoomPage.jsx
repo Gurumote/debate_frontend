@@ -1,9 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { api } from '../API/axios';
 import { motion } from 'framer-motion';
-import { LiveKitRoom, RoomAudioRenderer } from '@livekit/components-react';
-import { Swords, Eye, Shield, ArrowLeft, LogOut, Loader2 } from 'lucide-react';
+import { LiveKitRoom, RoomAudioRenderer, useLocalParticipant } from '@livekit/components-react';
+import { Swords, Eye, Shield, ArrowLeft, LogOut, Loader2, Mic, MicOff, Video, VideoOff } from 'lucide-react';
 import DebateRoomLayout from '../Components/DebateRoomLayout';
 import '../CSS/LiveRoom.css';
 
@@ -54,8 +54,9 @@ export default function LiveRoomPage() {
 
   // Check if we received a token + role from navigation state (e.g. HostRoomsPage activate)
   const stateToken = location.state?.token;
-  const stateRole = location.state?.role;
-  const isHost = location.state?.isHost || false;
+  const stateRole  = location.state?.role;
+  // isHost is true if explicitly flagged OR if the role passed is HOST
+  const isHost = location.state?.isHost || stateRole === 'HOST';
 
   const [token, setToken] = useState(stateToken || '');
   const [roleSelection, setRoleSelection] = useState(!stateToken);
@@ -67,6 +68,12 @@ export default function LiveRoomPage() {
   const [joinedRole, setJoinedRole] = useState(
     stateRole || (isHost ? 'HOST' : null)
   );
+
+  // ── Fullscreen debate mode: hide global nav, remove top padding ──
+  useEffect(() => {
+    document.body.classList.add('debate-mode');
+    return () => document.body.classList.remove('debate-mode');
+  }, []);
 
   // Audience members: no camera / no mic
   const isAudience = joinedRole === 'AUDIENCE';
@@ -206,36 +213,15 @@ export default function LiveRoomPage() {
         <div className="topbar-left">
           <div className="live-dot" aria-hidden="true" />
           <span className="arena-title">
-            Arena #{roomId}
+            {/* Audience sees generic title — never the room code */}
+            {isAudience ? 'Live Debate' : `Arena #${roomId}`}
           </span>
+          {isAudience && (
+            <span className="audience-badge"><Eye size={11} /> Watching</span>
+          )}
         </div>
 
         <div className="topbar-right">
-          {/* Vote PRO (Sage) */}
-          <button
-            onClick={() => castVote('RED')}
-            disabled={voteCasted !== null}
-            className={`vote-btn vote-pro ${voteCasted === 'RED' ? 'voted' : ''}`}
-            aria-label={voteCasted === 'RED' ? 'You voted PRO' : 'Vote PRO'}
-          >
-            {voteCasted === 'RED' ? '✓ PRO' : 'PRO'}
-          </button>
-
-          <span className="vs-divider" aria-hidden="true">VS</span>
-
-          {/* Vote CON (Orange) */}
-          <button
-            onClick={() => castVote('BLUE')}
-            disabled={voteCasted !== null}
-            className={`vote-btn vote-con ${voteCasted === 'BLUE' ? 'voted' : ''}`}
-            aria-label={voteCasted === 'BLUE' ? 'You voted CON' : 'Vote CON'}
-          >
-            {voteCasted === 'BLUE' ? '✓ CON' : 'CON'}
-          </button>
-
-          <div className="topbar-separator" aria-hidden="true" />
-
-          {/* Leave */}
           <button
             onClick={leaveRoom}
             className="leave-btn"
@@ -250,28 +236,137 @@ export default function LiveRoomPage() {
       {/* Debate Room — 3-column dynamic layout */}
       <div className="livekit-area">
         <LiveKitRoom
-          video={!isAudience}   /* audience: no camera request */
-          audio={!isAudience}   /* audience: no mic request     */
+          video={!isAudience}
+          audio={!isAudience}
           token={token}
           serverUrl={LIVEKIT_URL}
           style={{ height: '100%', width: '100%', display: 'flex', flexDirection: 'column' }}
           onDisconnected={leaveRoom}
         >
-          {/* Custom Google Meet-style team layout */}
           <DebateRoomLayout
-            canRemove={isHost}
+            isHost={isHost}
             isAudience={isAudience}
+            canRemove={isHost}
             onRemove={async (identity) => {
               try {
-                await api.post(`/room/${roomId}/remove`, null, { params: { identity } });
+                // Backend: POST /{roomId}/{participantId}/removeParticipant
+                await api.post(`/room/${roomId}/${identity}/removeParticipant`);
               } catch (err) {
                 console.error('Remove participant failed', err);
               }
             }}
           />
           <RoomAudioRenderer />
+          {!isAudience && <DebateControlBar />}
+          {isAudience && (
+            <AudienceVotePanel
+              voteCasted={voteCasted}
+              onVote={castVote}
+              error={error}
+            />
+          )}
         </LiveKitRoom>
       </div>
+    </div>
+  );
+}
+
+/* ─── Audience Vote Panel (inside LiveKitRoom context) ─── */
+function AudienceVotePanel({ voteCasted, onVote, error }) {
+  const [voting, setVoting] = useState(false);
+
+  const handleVote = async (team) => {
+    if (voting || voteCasted) return;
+    setVoting(true);
+    await onVote(team);
+    setVoting(false);
+  };
+
+  if (voteCasted) {
+    return (
+      <div className="vote-panel vote-panel--done">
+        <div className="vote-confirmed">
+          <span className={`vote-badge ${voteCasted === 'RED' ? 'vote-badge--pro' : 'vote-badge--con'}`}>
+            ✓ Voted {voteCasted === 'RED' ? 'PRO' : 'CON'}
+          </span>
+          <p>Your vote is locked in. Results revealed when the debate ends.</p>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="vote-panel">
+      <span className="vote-panel__prompt">Who's winning? Cast your vote:</span>
+      {error && <span className="vote-panel__error">{error}</span>}
+      <div className="vote-choices">
+        <button
+          className="vote-choice vote-choice--pro"
+          onClick={() => handleVote('RED')}
+          disabled={voting}
+        >
+          <span className="vote-choice__emoji">👍</span>
+          <strong>PRO</strong>
+          <span>Making the better case</span>
+        </button>
+        <div className="vote-choice-vs">VS</div>
+        <button
+          className="vote-choice vote-choice--con"
+          onClick={() => handleVote('BLUE')}
+          disabled={voting}
+        >
+          <span className="vote-choice__emoji">👎</span>
+          <strong>CON</strong>
+          <span>Making the better case</span>
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Mic & Camera toggle bar (inside LiveKitRoom context) ─── */
+function DebateControlBar() {
+  const { localParticipant } = useLocalParticipant();
+  const [micOn,  setMicOn]  = useState(true);
+  const [camOn,  setCamOn]  = useState(true);
+
+  const toggleMic = useCallback(async () => {
+    if (!localParticipant) return;
+    const next = !micOn;
+    await localParticipant.setMicrophoneEnabled(next);
+    setMicOn(next);
+  }, [localParticipant, micOn]);
+
+  const toggleCam = useCallback(async () => {
+    if (!localParticipant) return;
+    const next = !camOn;
+    await localParticipant.setCameraEnabled(next);
+    setCamOn(next);
+  }, [localParticipant, camOn]);
+
+  return (
+    <div className="debate-controls" role="toolbar" aria-label="Media controls">
+      {/* Mic toggle */}
+      <button
+        onClick={toggleMic}
+        className={`ctrl-btn ${micOn ? 'ctrl-btn--on' : 'ctrl-btn--off'}`}
+        aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'}
+        aria-pressed={!micOn}
+      >
+        {micOn ? <Mic size={18} /> : <MicOff size={18} />}
+        <span>{micOn ? 'Mic On' : 'Muted'}</span>
+      </button>
+
+      {/* Camera toggle */}
+      <button
+        onClick={toggleCam}
+        className={`ctrl-btn ${camOn ? 'ctrl-btn--on' : 'ctrl-btn--off'}`}
+        aria-label={camOn ? 'Turn off camera' : 'Turn on camera'}
+        aria-pressed={!camOn}
+      >
+        {camOn ? <Video size={18} /> : <VideoOff size={18} />}
+        <span>{camOn ? 'Cam On' : 'Cam Off'}</span>
+      </button>
     </div>
   );
 }

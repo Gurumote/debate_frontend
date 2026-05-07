@@ -30,20 +30,17 @@ export default function HostRoomsPage() {
 
   const activateRoom = async (roomId) => {
     try {
-      // Step 1: Activate
-      await api.post(`/room/${roomId}/activateRoom`);
+      // activateRoom already returns the HOST token directly
+      const res = await api.post(`/room/${roomId}/activateRoom`);
+      const token = res.data;   // ← backend returns token string directly
 
-      // Step 2: Get host token
-      const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
-      const token = tokenRes.data;
-
-      // Step 3: Navigate into the live room
+      // Navigate into the live room as HOST
       navigate(`/room/${roomId}`, {
-        state: { token, role: "HOST" },
+        state: { token, role: 'HOST', isHost: true },
       });
     } catch (err) {
-      console.error("Activation failed", err);
-      setError(err.response?.data || "Failed to activate room. Try again.");
+      console.error('Activation failed', err);
+      setError(err.response?.data || 'Failed to activate room. Try again.');
     }
   };
 
