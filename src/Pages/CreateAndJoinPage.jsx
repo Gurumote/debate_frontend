@@ -22,20 +22,11 @@ export default function CreateAndJoinPage() {
     return now.toISOString().slice(0, 16);
   };
 
-  // ── Step 1: Create the room ──
+  // ── Step 1: Create the room AND join as host in one shot ──
   const handleCreateRoom = async () => {
-    if (!roomName.trim()) {
-      setError("Room name is required");
-      return;
-    }
-    if (teamSize < 1 || teamSize > 50) {
-      setError("Team size must be between 1 and 50");
-      return;
-    }
-    if (!endTime) {
-      setError("End time is required");
-      return;
-    }
+    if (!roomName.trim()) { setError("Room name is required"); return; }
+    if (teamSize < 1 || teamSize > 50) { setError("Team size must be between 1 and 50"); return; }
+    if (!endTime) { setError("End time is required"); return; }
 
     setLoading(true);
     setError("");
@@ -43,21 +34,40 @@ export default function CreateAndJoinPage() {
     try {
       const roomBody = {
         roomName: roomName.trim(),
-        teamSize: teamSize,
+        teamSize:  teamSize,
         debateType: "VIDEO",
         endTime: new Date(endTime).toISOString(),
       };
 
-      const createRes = await api.post("/room/createRoom", roomBody);
-      const roomId = createRes.data;
+      // Single endpoint: creates room + LiveKit room + returns HOST token directly
+      const res = await api.post("/room/createRoomAndJoin", roomBody);
+      const token = res.data?.token || res.data;
 
-      // Auto-fetch HOST token — creator always joins as host
-      const tokenRes = await api.post(`/room/${roomId}/token?team=HOST`);
-      const token = tokenRes.data?.token || tokenRes.data;
+      if (!token || typeof token !== "string") {
+        setError("Server did not return a valid token.");
+        return;
+      }
 
-      // Go straight into the live room as HOST (no role selection)
+      // roomId is embedded in the JWT — parse it out if available,
+      // otherwise navigate by room name (backend should return roomId too)
+      // Prefer res.data.roomId if backend wraps response, else decode JWT
+      let roomId = res.data?.roomId;
+      if (!roomId) {
+        try {
+          const payload = JSON.parse(atob(token.split('.')[1]));
+          // LiveKit JWT stores room in the "video" grant
+          roomId = payload?.video?.room || payload?.roomId || payload?.room;
+        } catch (_) {}
+      }
+
+      if (!roomId) {
+        setError("Could not determine room ID from response.");
+        return;
+      }
+
+      // Navigate directly into the live room as HOST — skip role selection screen
       navigate(`/room/${roomId}`, {
-        state: { token, role: "HOST" },
+        state: { token, role: "HOST", isHost: true },
       });
     } catch (err) {
       console.error("Room creation failed:", err);
@@ -66,6 +76,7 @@ export default function CreateAndJoinPage() {
       setLoading(false);
     }
   };
+
 
   // ── Step 2: Join with chosen role ──
   const handleJoinAs = async (role) => {

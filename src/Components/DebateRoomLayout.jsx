@@ -37,14 +37,18 @@ function ParticipantVideoTile({ participant, large = false, isHostTile = false, 
       let micMuted = true;
 
       pubs.forEach((pub) => {
-        if (!pub.track) return;
+        // For local participant, track may exist even if pub.track is null briefly
+        const track = pub.track || pub.videoTrack || pub.audioTrack;
+        if (!track) return;
 
-        if (pub.track.kind === Track.Kind.Video && pub.track.source === Track.Source.Camera) {
-          if (videoRef.current) pub.track.attach(videoRef.current);
+        if (track.kind === Track.Kind.Video && track.source === Track.Source.Camera) {
+          if (videoRef.current) track.attach(videoRef.current);
+          // Local tracks: isMuted may be false even if pub.isMuted says true initially.
+          // Trust the track's own muted property to determine visibility.
           hasVideoTrack = !pub.isMuted;
         }
-        if (pub.track.kind === Track.Kind.Audio && !participant.isLocal && audioRef.current) {
-          pub.track.attach(audioRef.current);
+        if (track.kind === Track.Kind.Audio && !participant.isLocal && audioRef.current) {
+          track.attach(audioRef.current);
           micMuted = pub.isMuted;
         }
       });
@@ -55,7 +59,7 @@ function ParticipantVideoTile({ participant, large = false, isHostTile = false, 
 
     attachAll();
 
-    // ── Listen for track changes ──
+    // ── Handle remote track subscriptions ──
     const onTrackSubscribed = (track, pub) => {
       if (track.kind === Track.Kind.Video && track.source === Track.Source.Camera) {
         if (videoRef.current) track.attach(videoRef.current);
@@ -66,34 +70,52 @@ function ParticipantVideoTile({ participant, large = false, isHostTile = false, 
       }
     };
 
+    // ── Handle LOCAL track publications (fires for the local participant) ──
+    const onLocalTrackPublished = (pub) => {
+      const track = pub.track;
+      if (!track) return;
+      if (track.kind === Track.Kind.Video && track.source === Track.Source.Camera) {
+        if (videoRef.current) track.attach(videoRef.current);
+        setHasVideo(!pub.isMuted);
+      }
+      if (track.kind === Track.Kind.Audio && participant.isLocal) {
+        // Update mic muted state for local participant
+        setIsMuted(pub.isMuted);
+      }
+    };
+
     const onTrackUnsubscribed = (track) => {
       try { track.detach(); } catch (_) {}
       if (track.kind === Track.Kind.Video) setHasVideo(false);
     };
 
-    const onTrackMuted   = (pub) => {
-      if (pub.kind === Track.Kind.Video) setHasVideo(false);
-      if (pub.kind === Track.Kind.Audio) setIsMuted(true);
+    // TrackMuted/Unmuted events receive a TrackPublication object.
+    // pub.source is the correct property to check (pub.kind is deprecated).
+    const onTrackMuted = (pub) => {
+      if (pub.source === Track.Source.Camera) setHasVideo(false);
+      if (pub.source === Track.Source.Microphone) setIsMuted(true);
     };
     const onTrackUnmuted = (pub) => {
-      if (pub.kind === Track.Kind.Video) setHasVideo(true);
-      if (pub.kind === Track.Kind.Audio) setIsMuted(false);
+      if (pub.source === Track.Source.Camera) setHasVideo(true);
+      if (pub.source === Track.Source.Microphone) setIsMuted(false);
     };
 
     const onSpeakingChanged = (speaking) => setIsSpeaking(speaking);
 
-    participant.on('trackSubscribed',   onTrackSubscribed);
-    participant.on('trackUnsubscribed', onTrackUnsubscribed);
-    participant.on('trackMuted',        onTrackMuted);
-    participant.on('trackUnmuted',      onTrackUnmuted);
-    participant.on('isSpeakingChanged', onSpeakingChanged);
+    participant.on('trackSubscribed',    onTrackSubscribed);
+    participant.on('localTrackPublished', onLocalTrackPublished);
+    participant.on('trackUnsubscribed',  onTrackUnsubscribed);
+    participant.on('trackMuted',         onTrackMuted);
+    participant.on('trackUnmuted',       onTrackUnmuted);
+    participant.on('isSpeakingChanged',  onSpeakingChanged);
 
     return () => {
-      participant.off('trackSubscribed',   onTrackSubscribed);
-      participant.off('trackUnsubscribed', onTrackUnsubscribed);
-      participant.off('trackMuted',        onTrackMuted);
-      participant.off('trackUnmuted',      onTrackUnmuted);
-      participant.off('isSpeakingChanged', onSpeakingChanged);
+      participant.off('trackSubscribed',    onTrackSubscribed);
+      participant.off('localTrackPublished', onLocalTrackPublished);
+      participant.off('trackUnsubscribed',  onTrackUnsubscribed);
+      participant.off('trackMuted',         onTrackMuted);
+      participant.off('trackUnmuted',       onTrackUnmuted);
+      participant.off('isSpeakingChanged',  onSpeakingChanged);
 
       // Detach on unmount
       try {

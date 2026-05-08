@@ -119,6 +119,11 @@ export default function LiveRoomPage() {
   };
 
   const leaveRoom = async () => {
+    // Audience are view-only — no server-side leave call needed
+    if (isAudience) {
+      navigate('/dashboard');
+      return;
+    }
     try {
       await api.post(`/room/${roomId}/leave`);
     } catch (err) {
@@ -126,6 +131,7 @@ export default function LiveRoomPage() {
     }
     navigate('/dashboard');
   };
+
 
   // ── Role Selection Screen ──
   if (roleSelection) {
@@ -326,46 +332,62 @@ function AudienceVotePanel({ voteCasted, onVote, error }) {
 
 /* ─── Mic & Camera toggle bar (inside LiveKitRoom context) ─── */
 function DebateControlBar() {
-  const { localParticipant } = useLocalParticipant();
-  const [micOn,  setMicOn]  = useState(true);
-  const [camOn,  setCamOn]  = useState(true);
+  const { localParticipant, isCameraEnabled, isMicrophoneEnabled } = useLocalParticipant();
+  const [toggling, setToggling] = useState({ mic: false, cam: false });
+
+  // Derive display state from actual LiveKit track state (not local booleans)
+  // This prevents UI from desyncing when tracks start muted or fail to publish
+  const micOn = isMicrophoneEnabled;
+  const camOn = isCameraEnabled;
 
   const toggleMic = useCallback(async () => {
-    if (!localParticipant) return;
-    const next = !micOn;
-    await localParticipant.setMicrophoneEnabled(next);
-    setMicOn(next);
-  }, [localParticipant, micOn]);
+    if (!localParticipant || toggling.mic) return;
+    setToggling(t => ({ ...t, mic: true }));
+    try {
+      await localParticipant.setMicrophoneEnabled(!micOn);
+    } catch (err) {
+      console.error('Mic toggle failed:', err);
+    } finally {
+      setToggling(t => ({ ...t, mic: false }));
+    }
+  }, [localParticipant, micOn, toggling.mic]);
 
   const toggleCam = useCallback(async () => {
-    if (!localParticipant) return;
-    const next = !camOn;
-    await localParticipant.setCameraEnabled(next);
-    setCamOn(next);
-  }, [localParticipant, camOn]);
+    if (!localParticipant || toggling.cam) return;
+    setToggling(t => ({ ...t, cam: true }));
+    try {
+      await localParticipant.setCameraEnabled(!camOn);
+    } catch (err) {
+      console.error('Camera toggle failed:', err);
+    } finally {
+      setToggling(t => ({ ...t, cam: false }));
+    }
+  }, [localParticipant, camOn, toggling.cam]);
 
   return (
     <div className="debate-controls" role="toolbar" aria-label="Media controls">
       {/* Mic toggle */}
       <button
         onClick={toggleMic}
+        disabled={toggling.mic}
         className={`ctrl-btn ${micOn ? 'ctrl-btn--on' : 'ctrl-btn--off'}`}
         aria-label={micOn ? 'Mute microphone' : 'Unmute microphone'}
         aria-pressed={!micOn}
       >
         {micOn ? <Mic size={18} /> : <MicOff size={18} />}
-        <span>{micOn ? 'Mic On' : 'Muted'}</span>
+        <span>{toggling.mic ? '…' : micOn ? 'Mic On' : 'Muted'}</span>
       </button>
 
       {/* Camera toggle */}
       <button
         onClick={toggleCam}
+        disabled={toggling.cam}
         className={`ctrl-btn ${camOn ? 'ctrl-btn--on' : 'ctrl-btn--off'}`}
         aria-label={camOn ? 'Turn off camera' : 'Turn on camera'}
         aria-pressed={!camOn}
       >
         {camOn ? <Video size={18} /> : <VideoOff size={18} />}
-        <span>{camOn ? 'Cam On' : 'Cam Off'}</span>
+        <span>{toggling.cam ? '…' : camOn ? 'Cam On' : 'Cam Off'}</span>
       </button>
     </div>
   );

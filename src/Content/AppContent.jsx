@@ -11,6 +11,7 @@ import JoinPage from "../Pages/JoinPage.jsx";
 import LiveRoomPage from "../Pages/LiveRoomPage.jsx";
 import ActivateRoom from "../Components/ActivateRoom.jsx";
 import CreateAndJoinPage from "../Pages/CreateAndJoinPage.jsx";
+import ProfilePage from "../Pages/ProfilePage.jsx";
 
 const NavigationWrapper = Nav;
 
@@ -157,7 +158,7 @@ function AppContent() {
                             path="/profile"
                             element={
                                 <PrivateRoute>
-                                    <div className="page-loader">Profile — Coming Soon</div>
+                                    <ProfilePage />
                                 </PrivateRoute>
                             }
                         />
