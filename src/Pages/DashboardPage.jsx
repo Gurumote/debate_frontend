@@ -97,13 +97,25 @@ export default function DashboardPage() {
                         room={room}
                         thumbnail={generateRoomThumbnail(room.roomName, "debate", "loremflickr")}
                         type="public"
-                        onRoomClick={() => navigate(`/room/${room.id}`)}
+                        onRoomClick={async () => {
+                            try {
+                                const res = await api.post(
+                                    `/room/${room.id}/tokenForAuidence`
+                                );
+                                const token = res.data?.token || res.data;
+                                navigate(`/room/${room.id}`, {
+                                    state: { token, role: "AUDIENCE" },
+                                });
+                            } catch (err) {
+                                console.error("Join failed:", err);
+                            }
+                        }}
                         onJoinAudience={async (roomId) => {
                             try {
                                 const res = await api.post(
                                     `/room/${roomId}/tokenForAuidence`
                                 );
-                                const token = res.data;
+                                const token = res.data?.token || res.data;
                                 navigate(`/room/${roomId}`, {
                                     state: { token, role: "AUDIENCE" },
                                 });

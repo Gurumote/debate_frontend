@@ -98,7 +98,7 @@ export default function ProfilePage() {
       // Parallel fetch — profile + rooms
       const [profRes, roomsRes] = await Promise.all([
         api.get('/profile/me'),
-        api.get('/room/rooms'),
+        api.get('/profile/rooms'),
       ]);
       setProfile(profRes.data);
       setRooms(Array.isArray(roomsRes.data) ? roomsRes.data : []);
